@@ -12,6 +12,10 @@ def sort_chars(char_list, font, language):
     }.get(language, "A")  # 默认用 "A"
 
     # 获取字符的边界框
+    # left (bbox[0])：字符的 左边缘 x 坐标
+    # upper (bbox[1])：字符的 上边缘 y 坐标
+    # right (bbox[2])：字符的 右边缘 x 坐标
+    # lower (bbox[3])：字符的 下边缘 y 坐标
     bbox = font.getbbox(sample_char)
     char_width = bbox[2] - bbox[0]
     char_height = bbox[3] - bbox[1]

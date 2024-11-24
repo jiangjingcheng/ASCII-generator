@@ -2,6 +2,7 @@
 @author: Viet Nguyen <nhviet1009@gmail.com>
 """
 import argparse
+import time
 
 import cv2
 import numpy as np
@@ -11,7 +12,7 @@ from PIL import Image, ImageFont, ImageDraw, ImageOps
 def get_args():
     parser = argparse.ArgumentParser("Image to ASCII")
     parser.add_argument("--input", type=str, default="data/input.mp4", help="Path to input video")
-    parser.add_argument("--output", type=str, default="data/output.mp4", help="Path to output video")
+    parser.add_argument("--output", type=str, default="data/output_color_overlay.mp4", help="Path to output video")
     parser.add_argument("--mode", type=str, default="complex", choices=["simple", "complex"],
                         help="10 or 70 different characters")
     parser.add_argument("--background", type=str, default="black", choices=["black", "white"],
@@ -41,6 +42,7 @@ def main(opt):
         fps = opt.fps
     num_chars = len(CHAR_LIST)
     num_cols = opt.num_cols
+    print("writing video start")
     while cap.isOpened():
         flag, frame = cap.read()
         if flag:
@@ -57,7 +59,9 @@ def main(opt):
             cell_height = 12
             num_cols = int(width / cell_width)
             num_rows = int(height / cell_height)
-        char_width, char_height = font.getsize("A")
+        bbox = font.getbbox("A")
+        char_width = bbox[2] - bbox[0]
+        char_height = bbox[3] - bbox[1]
         out_width = char_width * num_cols
         out_height = 2 * char_height * num_rows
         out_image = Image.new("RGB", (out_width, out_height), bg_code)
@@ -83,15 +87,22 @@ def main(opt):
             out = cv2.VideoWriter(opt.output, cv2.VideoWriter_fourcc(*"XVID"), fps,
                                   ((out_image.shape[1], out_image.shape[0])))
 
-        if opt.overlay_ratio:
+        if opt.overlay_ratio and opt.overlay_ratio != 0:
+            print("generating overlay_ratio")
             height, width, _ = out_image.shape
             overlay = cv2.resize(frame, (int(width * opt.overlay_ratio), int(height * opt.overlay_ratio)))
             out_image[height - int(height * opt.overlay_ratio):, width - int(width * opt.overlay_ratio):, :] = overlay
         out.write(out_image)
+    print("writing video over")
     cap.release()
     out.release()
 
 
 if __name__ == '__main__':
     opt = get_args()
+    # opt.__setattr__("overlay_ratio", 0)
+    start_time = time.time()
     main(opt)
+    execution_time = (time.time() - start_time) * 1000
+    print(f"代码执行时间: {execution_time:.3f} 毫秒")
+
