@@ -119,5 +119,5 @@ By running the sript **img2img_color.py** or **img2img.py** with different value
 
 * **python 3.6**
 * **cv2**
-* **PIL** 
+* **PIL** （Pillow 10.0.0 开始，getsize() 方法被移除，因此如果你使用较旧的代码，它可能会抛出方法不存在错误。）
 * **numpy**
